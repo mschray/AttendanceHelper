@@ -16,13 +16,13 @@ public static class LoggingHelper
     /// <param name="message">Message to log</param>
     /// <param name="messageSource">Name of the log message source defaults to server</param>
     /// <returns></returns>
-    public static void WriteLogMessage(TraceWriter log, string function, string message,string messageSource = "Server")
+    public static void WriteLogMessage(TraceWriter log, string azureFunction, string message,string messageSource = "Server",[System.Runtime.CompilerServices.CallerMemberName] string function = "")
     {
 		// log to the standard Azure function Tracewriter
-		log.Info($"Requestor:{messageSource} request Method: {function} - {message}");
+		log.Info($"Requestor: {messageSource} requesting Azure Function {azureFunction} Method: {function} - {message}");
 
         // Log it to table storage		
-        WriteLogMessageToTable(function, message, messageSource);
+        WriteLogMessageToTable(azureFunction, function, message, messageSource);
 		
     }
    
@@ -33,7 +33,7 @@ public static class LoggingHelper
     /// <param name="message">Message to log</param>
     /// <param name="messageSource">Name of the log message source defaults to server</param>
     /// <returns></returns>
-    private static void WriteLogMessageToTable(string function, string message,string messageSource = "Server")
+    private static void WriteLogMessageToTable(string azureFunction,string function, string message,string messageSource = "Server")
     {
 				
 		// Parse the connection string and return a reference to the storage account.
@@ -56,7 +56,7 @@ public static class LoggingHelper
             RowKey = Guid.NewGuid().ToString(),
             Requestor = messageSource,
             LogDate = DateTime.Now,
-            LogData = $"Requestor:{messageSource} request Method: {function} - {message}"
+            LogData = $"Requestor: {messageSource} requesting Azure Function: {azureFunction} function: {function} - {message}"
         };
         
         // Create the TableOperation object that inserts the customer entity.
