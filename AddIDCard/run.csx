@@ -1,19 +1,26 @@
 #r "Microsoft.WindowsAzure.Storage"
 #load "../Shared/FunctionNameHelper.csx"
 #load "../Shared/LoggingHelper.csx"
+#load "../Shared/Person.csx"
 
 using System.Net;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
 
+/// <summary>
+/// The AddIDCard function takes a student ID (that was scanned) and adds it to the
+/// CardDataTable.
+/// </summary>
+/// <param name="req">Incoming request</param>
+/// <param name="outTable">CardDataTable that incoming data is inserted into</param>
+/// <param name="log">Transient log provided by Azure Function infrastructure</param>
+/// <returns></returns>
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, ICollector<Person> outTable, TraceWriter log)
 {
     try
     {
 
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),"Called with input {req}" );
-
-        //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} called with input was {req}");
 
         dynamic requestData = await req.Content.ReadAsAsync<object>();
         string firstName = requestData?.FirstName;
@@ -27,13 +34,10 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IColle
         {
                 LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" invalid input in request object.  Input was {requestData}" );
 
-                //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} invalid input in request object.  Input was {requestData}");
-
                 return req.CreateResponse(HttpStatusCode.BadRequest, "Please make sure that all request fields are present in the request body");
         }
  
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(), $" Begin processing.  Input was {requestData}");
-        //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} Begin processing.  Input was {requestData}");
 
         outTable.Add(new Person()
         {
@@ -49,7 +53,6 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IColle
         });
 
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" ID Card added to CardDataTable.  Input was {requestData}" );
-        //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} ID Card added to CardDataTable.  Input was {requestData}");
 
         return req.CreateResponse(HttpStatusCode.Created);
 
@@ -57,18 +60,7 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IColle
     catch (System.Exception ex)
     {
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" execption occured with an {ex.Message} and stacktrace of {ex.StackTrace}" );
-        //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} execption occured with an {ex.Message} and stacktrace of {ex.StackTrace}");
 
         return req.CreateResponse(HttpStatusCode.BadRequest, $"Method:{FunctionNameHelper.GetFunctionName()} - see application log for error details");   
     }
-}
-
-public class Person : TableEntity
-{
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string IDNumber { get; set; }
-    public string CardNumber { get; set; }
-    public string Course { get; set; }
-    public DateTime ScanDate { get; set;}
 }

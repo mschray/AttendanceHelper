@@ -1,11 +1,19 @@
 #r "Microsoft.WindowsAzure.Storage"
 #load "../Shared/FunctionNameHelper.csx"
 #load "../Shared/LoggingHelper.csx"
+#load "../Shared/Course.csx"
 
 using System.Net;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
 
+/// <summary>
+/// The LoadCourse is a function that is used to load all of the courses into the system
+/// </summary>
+/// <param name="req">Incoming request</param>
+/// <param name="outTable">CourseTable that incoming data is inserted into</param>
+/// <param name="log">Transient log provided by Azure Function infrastructure</param>
+/// <returns></returns>
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, ICollector<Course> outTable, TraceWriter log)
 {
     try
@@ -27,7 +35,6 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IColle
 
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" Processing started.  Input was {req}");
 
-
         outTable.Add(new Course()
         {
             PartitionKey = "CourseLookup",
@@ -37,7 +44,6 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IColle
             LeadInstructor = leadInstructor
         });
 
- 
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" completed.  Input was {requestData}");
 
         return req.CreateResponse(HttpStatusCode.Created);
@@ -51,11 +57,4 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IColle
         return req.CreateResponse(HttpStatusCode.BadRequest, "Method:{FunctionNameHelper.GetFunctionName()} - see application log for error details");        
     }
 
-}
-
-public class Course : TableEntity
-{
-    public string CourseNumber { get; set; }
-    public string CourseName { get; set; }
-    public string LeadInstructor { get; set; }
 }

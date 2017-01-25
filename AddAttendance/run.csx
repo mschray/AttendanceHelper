@@ -1,11 +1,20 @@
 #r "Microsoft.WindowsAzure.Storage"
 #load "../Shared/FunctionNameHelper.csx"
 #load "../Shared/LoggingHelper.csx"
+#load "../Shared/Person.csx"
 
 using System.Net;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
 
+/// <summary>
+/// The AddAttendance is a function that is used to capture an instance of attendance, meaning when
+/// a student taps their student ID card we capture that attendance in the person table.
+/// </summary>
+/// <param name="req">Incoming request</param>
+/// <param name="outTable">Attendance that incoming data is inserted into</param>
+/// <param name="log">Transient log provided by Azure Function infrastructure</param>
+/// <returns></returns>
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, ICollector<Person> outTable, TraceWriter log)
 {
 
@@ -24,14 +33,12 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IColle
         if (String.IsNullOrEmpty(firstName) || String.IsNullOrEmpty(lastName) || String.IsNullOrEmpty(idNumber) || String.IsNullOrEmpty(cardNumber) || String.IsNullOrEmpty(course) )
         {
             LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" invalid input in request object.  Input was {requestData}" );
-            //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} invalid input in request object.  Input was {requestData}");
 
             return req.CreateResponse(HttpStatusCode.BadRequest, "Please make sure that all request fields are present in the request body");
         }
 
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" Process request.  Input was {requestData}");
-        //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} Process request.  Input was {requestData}");
-
+        
         outTable.Add(new Person()
         {
             PartitionKey = "Functions",
@@ -45,25 +52,14 @@ public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IColle
             
         });
 
-        log.Info($"Method:{FunctionNameHelper.GetFunctionName()} Attendance record added to Person.  Input was {requestData}");
-
+        LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(), $" Attendance record added to Person.  Input was {requestData}");
+        
         return req.CreateResponse(HttpStatusCode.Created);
     }
     catch (System.Exception ex)
     {
-        //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} execption occured with an {ex.Message} and stacktrace of {ex.StackTrace}");
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" execption occured with an {ex.Message} and stacktrace of {ex.StackTrace}" );
 
         return req.CreateResponse(HttpStatusCode.BadRequest, $"Method:{FunctionNameHelper.GetFunctionName()} see application log for error details");        
     }
-}
-
-public class Person : TableEntity
-{
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string IDNumber { get; set; }
-    public string CardNumber { get; set; }
-    public string Course { get; set; }
-    public DateTime ScanDate { get; set;}
 }

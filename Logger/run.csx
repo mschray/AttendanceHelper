@@ -1,57 +1,53 @@
 #r "Microsoft.WindowsAzure.Storage"
 #load "../Shared/FunctionNameHelper.csx"
+#load "../Shared/LoggingHelper.csx"
 
 using System.Net;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
 
-public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, ICollector<LogDataItem> outTable, TraceWriter log)
+/// <summary>
+/// The Logger is a function for the client to send log messages to the server.  This fucntion uses
+/// the same code as the server to accomplish its logging with the exception of adding the optional parameter
+/// client to the logging request 
+/// </summary>
+/// <param name="req">Incoming request</param>
+/// <param name="log">Transient log provided by Azure Function infrastructure</param>
+/// <returns></returns>
+public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, TraceWriter log)
 {
     try
     {
-        log.Info($"Method:{FunctionNameHelper.GetFunctionName()} invoked. Input was {req} ");
+        LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" invoked.");
 
         dynamic requestData = await req.Content.ReadAsAsync<object>();
         string logData = requestData?.LogData;
         DateTime? logDate = requestData?.LogDate; // DateTime? handles null input
+
+        LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" processing.  Input was {requestData}");
         
         if (String.IsNullOrEmpty(logData) || logDate == null )
         {
-            log.Info($"Method:{FunctionNameHelper.GetFunctionName()} Please pass a LogData item in the request body. Input was {req}");
-
+            LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" Please pass a LogData item in the request body. Input was {requestData}");
+            
             return req.CreateResponse(HttpStatusCode.BadRequest, "Please pass a LogData item in the request body");
         }
 
-        log.Info($"Method:{FunctionNameHelper.GetFunctionName()} Processing");
+        LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" processing.  Input was {requestData}");
 
-        // Add log entry - cast the DateTime? to a DateTime
-        outTable.Add(new LogDataItem()
-        {
-            PartitionKey = "Functions",
-            RowKey = Guid.NewGuid().ToString(),
-            Requestor = "Client",
-            LogDate = (DateTime)logDate,
-            LogData = logData
-            
-        });
-
-        log.Info($"Method:{FunctionNameHelper.GetFunctionName()} Completed");
+        // log the data passed from the client - note I am provided the optional Client tag to incidate data from the cleint
+        LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),logData, "Client");
+        
+        LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),"Logged Client Details");
 
         return req.CreateResponse(HttpStatusCode.Created,"Logged Details");
 
     }
     catch (Exception ex)
     {
-        log.Info($"Method:{FunctionNameHelper.GetFunctionName()} execption occured with an {ex.Message} and stacktrace of {ex.StackTrace}");   
-
+        LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" execption occured with an {ex.Message} and stacktrace of {ex.StackTrace}");
+        
         return req.CreateResponse(HttpStatusCode.BadRequest, $"Method:{FunctionNameHelper.GetFunctionName()} - see application log for error details");        
     }
 
-}
-
-public class LogDataItem : TableEntity
-{
-    public string Requestor { get; set; }
-    public DateTime LogDate { get; set;}
-    public string LogData { get; set; }
 }

@@ -1,3 +1,5 @@
+#load "LogDataItem.csx"
+
 using System;
 using Microsoft.Azure; // Namespace for CloudConfigurationManager
 using Microsoft.WindowsAzure.Storage; // Namespace for CloudStorageAccount
@@ -5,6 +7,15 @@ using Microsoft.WindowsAzure.Storage.Table; // Namespace for Table storage types
 
 public static class LoggingHelper 
 {
+    
+    /// <summary>
+    /// This method echoes the incoming log message to the Azure Functions (transient log) 
+    /// </summary>
+    /// <param name="log">Reference to the TraceWriter passed into the run method</param>
+    /// <param name="function">Name of the calling function</param>
+    /// <param name="message">Message to log</param>
+    /// <param name="messageSource">Name of the log message source defaults to server</param>
+    /// <returns></returns>
     public static void WriteLogMessage(TraceWriter log, string function, string message,string messageSource = "Server")
     {
 		// log to the standard Azure function Tracewriter
@@ -14,7 +25,14 @@ public static class LoggingHelper
         WriteLogMessageToTable(function, message, messageSource);
 		
     }
-    
+   
+   /// <summary>
+    /// This method writes the incoming log message Azure Table Storage to make log messages persistent 
+    /// </summary>
+    /// <param name="function">Name of the calling function</param>
+    /// <param name="message">Message to log</param>
+    /// <param name="messageSource">Name of the log message source defaults to server</param>
+    /// <returns></returns>
     private static void WriteLogMessageToTable(string function, string message,string messageSource = "Server")
     {
 				
@@ -48,11 +66,4 @@ public static class LoggingHelper
         table.Execute(insertOperation);
                 
     }
-}
-
-public class LogDataItem : TableEntity
-{
-    public string Requestor { get; set; }
-    public DateTime LogDate { get; set;}
-    public string LogData { get; set; }
 }

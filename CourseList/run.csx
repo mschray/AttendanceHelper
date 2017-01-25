@@ -1,40 +1,44 @@
 #r "Microsoft.WindowsAzure.Storage"
 #load "../Shared/FunctionNameHelper.csx"
 #load "../Shared/LoggingHelper.csx"
+#load "../Shared/Course.csx"
 
 using System.Net;
 using System.Text;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage;
 
+/// <summary>
+/// The CourseList function returns a complete list of courses covered by the attendance system 
+/// </summary>
+/// <param name="req">Incoming request</param>
+/// <param name="inTable">CourseTable that provides a complete list of courses</param>
+/// <param name="log">Transient log provided by Azure Function infrastructure</param>
+/// <returns></returns>
 public static HttpResponseMessage Run(HttpRequestMessage req, IQueryable<Course> inTable, TraceWriter log)
 {
     try
     {
-        //log.Info($"Method:{FunctionNameHelper.GetFunctionName()} $" invoked. Input was {req}");
+     
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" invoked.");
                 
-        //var query = from Course in inTable select Course;
-
         if (inTable.ToList().Count <= 0)
         {
-            log.Info($"Method:{FunctionNameHelper.GetFunctionName()} No courses found.");
-
+            LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" No courses found.");
+                 
             return req.CreateResponse(HttpStatusCode.NoContent, $"Method:{FunctionNameHelper.GetFunctionName()} No courses Found.");
         }
             
         else 
         {
-            log.Info($"Method:{FunctionNameHelper.GetFunctionName()} Course(s) found {Flatten(inTable.ToList())}");
+            LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" {inTable.ToList().Count} Course(s) found {Flatten(inTable.ToList())}");
 
             return req.CreateResponse(HttpStatusCode.OK, inTable.ToList() );
         }   
-
-        log.Info($"Method:{FunctionNameHelper.GetFunctionName()} Query complete. The result had a length of {inTable.ToList().Count}");
      }   
      catch (Exception ex)
      {
-        log.Info($"Method:{FunctionNameHelper.GetFunctionName()} execption occured with an {ex.Message} and stacktrace of {ex.StackTrace}");
+        LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" execption occured with an {ex.Message} and stacktrace of {ex.StackTrace}");
                 
         return req.CreateResponse(HttpStatusCode.NoContent, "Method:{FunctionNameHelper.GetFunctionName()} No courses Found");
         
@@ -53,15 +57,4 @@ private static string Flatten(List<Course> anArray)
 
     return strBuilder.ToString();
 
-}
-
-public class Course : TableEntity
-{
-    public string CourseNumber { get; set; }
-    public string CourseName { get; set; }
-    public string LeadInstructor { get; set; }
-    public override string ToString()
-    {
-        return $"CourseNumber {CourseNumber}, CourseName {CourseName}, LeadInstructor {LeadInstructor}";
-    }
 }

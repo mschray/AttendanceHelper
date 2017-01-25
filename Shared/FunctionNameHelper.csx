@@ -4,6 +4,11 @@ using System.Reflection;
 
 public static class FunctionNameHelper 
 {
+    /// <summary>
+    /// This method grabs the assembly name of the calling code and return just the assembly name, which in Azure functions (mostly)
+    /// is the name of the calling function. 
+    /// </summary>
+    /// <returns>The name of the assembly simplied down to just the assembly name (not version # and such) </returns>
     public static string GetFunctionName()
     {
 
