@@ -12,18 +12,17 @@ public static class LoggingHelper
     /// This method echoes the incoming log message to the Azure Functions (transient log) 
     /// </summary>
     /// <param name="log">Reference to the TraceWriter passed into the run method</param>
-    /// <param name="function">Name of the calling Azure function</param>
+    /// <param name="function">Name of the calling function</param>
     /// <param name="message">Message to log</param>
     /// <param name="messageSource">Name of the log message source defaults to server</param>
-    /// <param name="messageSource">Name of the calling method</param>
     /// <returns></returns>
-    public static void WriteLogMessage(TraceWriter log, string azureFunction, string message,string messageSource = "Server",[System.Runtime.CompilerServices.CallerMemberName] string function = "")
+    public static void WriteLogMessage(TraceWriter log, string function, string message,string messageSource = "Server")
     {
 		// log to the standard Azure function Tracewriter
-		log.Info($"Requestor: {messageSource}, Azure Function {azureFunction}, Method: {function} - {message}");
+		log.Info($"Requestor:{messageSource} request Method: {function} - {message}");
 
         // Log it to table storage		
-        WriteLogMessageToTable(azureFunction, function, message, messageSource);
+        WriteLogMessageToTable(function, message, messageSource);
 		
     }
    
@@ -33,9 +32,8 @@ public static class LoggingHelper
     /// <param name="function">Name of the calling function</param>
     /// <param name="message">Message to log</param>
     /// <param name="messageSource">Name of the log message source defaults to server</param>
-    /// <param name="messageSource">Name of the calling method</param>
     /// <returns></returns>
-    private static void WriteLogMessageToTable(string azureFunction,string function, string message,string messageSource = "Server")
+    private static void WriteLogMessageToTable(string function, string message,string messageSource = "Server")
     {
 				
 		// Parse the connection string and return a reference to the storage account.
@@ -58,7 +56,7 @@ public static class LoggingHelper
             RowKey = Guid.NewGuid().ToString(),
             Requestor = messageSource,
             LogDate = DateTime.Now,
-            LogData = $"Requestor: {messageSource}, Azure Function: {azureFunction}, Function: {function} - {message}"
+            LogData = $"Requestor:{messageSource} request Method: {function} - {message}"
         };
         
         // Create the TableOperation object that inserts the customer entity.
