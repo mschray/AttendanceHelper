@@ -12,9 +12,10 @@ public static class LoggingHelper
     /// This method echoes the incoming log message to the Azure Functions (transient log) 
     /// </summary>
     /// <param name="log">Reference to the TraceWriter passed into the run method</param>
-    /// <param name="function">Name of the calling function</param>
+    /// <param name="function">Name of the calling Azure function</param>
     /// <param name="message">Message to log</param>
     /// <param name="messageSource">Name of the log message source defaults to server</param>
+    /// <param name="messageSource">Name of the calling method</param>
     /// <returns></returns>
     public static void WriteLogMessage(TraceWriter log, string azureFunction, string message,string messageSource = "Server",[System.Runtime.CompilerServices.CallerMemberName] string function = "")
     {
@@ -32,6 +33,7 @@ public static class LoggingHelper
     /// <param name="function">Name of the calling function</param>
     /// <param name="message">Message to log</param>
     /// <param name="messageSource">Name of the log message source defaults to server</param>
+    /// <param name="messageSource">Name of the calling method</param>
     /// <returns></returns>
     private static void WriteLogMessageToTable(string azureFunction,string function, string message,string messageSource = "Server")
     {
