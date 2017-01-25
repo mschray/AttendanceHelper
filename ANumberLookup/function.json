@@ -1,0 +1,27 @@
+{
+  "bindings": [
+    {
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "post"
+      ],
+      "authLevel": "function"
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "res"
+    },
+    {
+      "type": "table",
+      "name": "inTable",
+      "tableName": "ANumberTable",
+      "connection": "testattendancehelper_STORAGE",
+      "direction": "in",
+      "take": 50
+    }
+  ],
+  "disabled": false
+}

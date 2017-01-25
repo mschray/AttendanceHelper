@@ -1,0 +1,40 @@
+{
+  "version": 2,
+  "targets": {
+    ".NETFramework,Version=v4.6": {
+      "Microsoft.WindowsAzure.ConfigurationManager/3.2.3": {
+        "type": "package",
+        "compile": {
+          "lib/net40/Microsoft.WindowsAzure.Configuration.dll": {}
+        },
+        "runtime": {
+          "lib/net40/Microsoft.WindowsAzure.Configuration.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Microsoft.WindowsAzure.ConfigurationManager/3.2.3": {
+      "sha512": "pAFC2gHAuubgaw7hqSDuaEVMqip/Z0niCFVpUZ1Hg+HUw4BuMQDZnNXCm+S9SU2zPwaH8l8hXaxDXSQI438gMA==",
+      "type": "package",
+      "path": "microsoft.windowsazure.configurationmanager/3.2.3",
+      "files": [
+        "lib/net40/Microsoft.WindowsAzure.Configuration.dll",
+        "lib/net40/Microsoft.WindowsAzure.Configuration.xml",
+        "microsoft.windowsazure.configurationmanager.3.2.3.nupkg.sha512",
+        "microsoft.windowsazure.configurationmanager.nuspec"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "": [],
+    ".NETFramework,Version=v4.6": [
+      "Microsoft.WindowsAzure.ConfigurationManager >= 3.2.3"
+    ]
+  },
+  "tools": {},
+  "projectFileToolGroups": {},
+  "packageFolders": {
+    "D:\\home\\data\\Functions\\packages\\nuget": {}
+  }
+}
