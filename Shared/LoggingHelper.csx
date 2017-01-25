@@ -20,7 +20,7 @@ public static class LoggingHelper
     public static void WriteLogMessage(TraceWriter log, string azureFunction, string message,string messageSource = "Server",[System.Runtime.CompilerServices.CallerMemberName] string function = "")
     {
 		// log to the standard Azure function Tracewriter
-		log.Info($"Requestor: {messageSource} requesting Azure Function {azureFunction} Method: {function} - {message}");
+		log.Info($"Requestor: {messageSource}, Azure Function {azureFunction}, Method: {function} - {message}");
 
         // Log it to table storage		
         WriteLogMessageToTable(azureFunction, function, message, messageSource);
@@ -58,7 +58,7 @@ public static class LoggingHelper
             RowKey = Guid.NewGuid().ToString(),
             Requestor = messageSource,
             LogDate = DateTime.Now,
-            LogData = $"Requestor: {messageSource} requesting Azure Function: {azureFunction} function: {function} - {message}"
+            LogData = $"Requestor: {messageSource}, Azure Function: {azureFunction}, Function: {function} - {message}"
         };
         
         // Create the TableOperation object that inserts the customer entity.
