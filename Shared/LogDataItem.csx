@@ -1,4 +1,6 @@
-using Microsoft.WindowsAzure.Storage; // Namespace for CloudStorageAccount
+#r "Microsoft.WindowsAzure.Storage"
+
+using System;
 using Microsoft.WindowsAzure.Storage.Table; // Namespace for Table storage types
 
 /// <summary>
@@ -7,6 +9,8 @@ using Microsoft.WindowsAzure.Storage.Table; // Namespace for Table storage types
 public class LogDataItem : TableEntity
 {
     public string Requestor { get; set; }
+    public string AzureFunction { get; set; }
+    public string Method { get; set; }
     public DateTime LogDate { get; set;}
     public string LogData { get; set; }
 }

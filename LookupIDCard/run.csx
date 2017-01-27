@@ -1,11 +1,11 @@
 #r "Microsoft.WindowsAzure.Storage"
 #load "../Shared/FunctionNameHelper.csx"
 #load "../Shared/LoggingHelper.csx"
-#load "../Shared/Person.csx"
-
-using System.Net;
+#load "../Shared/Person.csx" 
+ 
+using System.Net; 
 using Microsoft.WindowsAzure.Storage.Table;
-using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage; 
 
 /// <summary>
 /// The LookupIDCard function returns a person with a matching ID card number from CardDataTable 
@@ -13,11 +13,11 @@ using Microsoft.WindowsAzure.Storage;
 /// <param name="req">Incoming request</param>
 /// <param name="inTable">CardDataTable that is a list of known student ID cards</param>
 /// <param name="log">Transient log provided by Azure Function infrastructure</param>
-/// <returns></returns>
+/// <returns></returns> 
 public static async Task<HttpResponseMessage> Run(HttpRequestMessage req, IQueryable<Person> inTable, TraceWriter log)
-{
+{  
     try
-    {
+    {   
         LoggingHelper.WriteLogMessage(log, FunctionNameHelper.GetFunctionName(),$" invoked.");
         
         dynamic requestData = await req.Content.ReadAsAsync<object>();   
