@@ -20,17 +20,20 @@ class AzureLogAnalyticsHelper
 
         private static void Initialize()
         {
-            // Parse the connection string and return a reference to the storage account.
-		    CustomerId = CloudConfigurationManager.GetSetting("OPERATIONS_MANAGEMENT_WORKSPACE");
+            // Parse the connection string and return the configruation setting.
+            if (String.IsNullOrEmpty(CustomerId)) 
+                CustomerId = CloudConfigurationManager.GetSetting("OPERATIONS_MANAGEMENT_WORKSPACE");
             
-            SharedKey = CloudConfigurationManager.GetSetting("OPERATIONS_MANAGEMENT_KEY");
+            if (String.IsNullOrEmpty(SharedKey)) 
+                SharedKey = CloudConfigurationManager.GetSetting("OPERATIONS_MANAGEMENT_KEY");
             
-            LogName = CloudConfigurationManager.GetSetting("LOG_ANALYTICS_APPNAME") ;
-            
+            if (String.IsNullOrEmpty(LogName))
+                LogName = CloudConfigurationManager.GetSetting("LOG_ANALYTICS_APPNAME") ;
         }
 
         public static void WriteLogEntry(string json)
         {
+            // make sure all the needed app settings are loaded
             Initialize();
             
             // Create a hash for the API signature
@@ -45,7 +48,7 @@ class AzureLogAnalyticsHelper
             PostData(signature, datestring, json);
         }
         
-// Build the API signature
+		// Build the API signature
         public static string BuildSignature(string message, string secret)
         {
             var encoding = new System.Text.ASCIIEncoding();
@@ -58,9 +61,10 @@ class AzureLogAnalyticsHelper
             }
         }
 
-// Send a request to the POST API endpoint
+		// Send a request to the POST API endpoint
         public static void PostData(string signature, string date, string json)
         {
+           
             string url = "https://"+ CustomerId +".ods.opinsights.azure.com/api/logs?api-version=2016-04-01";
                         
             using (var client = new WebClient())
@@ -72,7 +76,6 @@ class AzureLogAnalyticsHelper
                 client.Headers.Add("time-generated-field", TimeStampField);
                 client.UploadString(new Uri(url), "POST", json);
             }
-            
-            
+           
         }
     }
